@@ -42,3 +42,5 @@ Since the SEC data is quite messy, I wrote a small logic in `src/utils/companyFa
 *   **Missing Data:** Not all companies use the same tags in their filings. If a company doesn't have the standard "Revenues" tag, the app will show a message that data isn't found for that specific one.
 
 I hope you find the code clean and easy to follow. Thanks for checking it out!
+
+* **Vercel Production Routing (`vercel.json`):** While `vite.config.js` successfully proxies requests in the local development environment to avoid CORS issues, Vercel does not use this config in production. This initially caused 404 API routing errors when deployed. To resolve this, I added a `vercel.json` file with specific `rewrites` rules. This acts as a production-level reverse proxy, seamlessly forwarding `/sec/api/*` requests to `https://data.sec.gov/*` and ensuring the app fetches live data correctly on the cloud.
