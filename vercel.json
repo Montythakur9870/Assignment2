@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/sec/:path*",
+      "destination": "https://data.sec.gov/:path*"
+    }
+  ]
+}
