@@ -1,46 +1,64 @@
 # SEC Financial Data Explorer
 
-Hi there! This is my project for the technical assessment. I built a small web app that fetches real financial data (like Revenue and Assets) from the SEC EDGAR API and shows it in a nice chart and table.
+This project was built for a technical assessment.
 
-## 🏃 Quick Start
-Just two commands to get it running:
+I wanted to make something practical, so I used real SEC EDGAR data and focused on two common metrics: Revenue and Assets. The app lets you view company data in a chart + summary table, and also inspect the full raw company-facts response.
 
-1. `npm install` (to get all the packages)
-2. `npm run dev` (to start the app)
+## Quick Start
 
-Then just open `http://localhost:5173` in your browser.
+```bash
+npm install
+npm run dev
+```
 
-## 📊 Exporting Data
-The app has a **CSV Export** button that works for both views:
-*   **Summary View:** Exports the full annual financial data (Revenue and Assets) for every year available, not just the filtered ones.
-*   **Raw Data View:** Exports every single "us-gaap" fact from the SEC file into a detailed CSV.
+Then open: `http://localhost:5173`
 
-## 🔍 Raw Data Explorer (Raw Table)
-The **Raw Data View** includes a powerful table that lets you explore the entire SEC dataset for a company:
-*   **Full Access:** It shows every single financial fact (thousands of rows) available in the SEC JSON file.
-*   **Smart Search:** Search by Tag name, Label, or even the Description of the financial fact.
-*   **Multi-Filters:** Filter data by **Specific Tags**, **Units** (like USD or Shares), **Forms** (10-K, 10-Q), and **Periods** (FY, Q1, Q2, etc.).
-*   **Performance:** Uses a fixed-height vertical scroll and pagination (25-200 rows) so the browser doesn't lag with large datasets.
-*   **User Friendly:** Features a **Sticky Header** and **Sticky Tag Column**, so you never lose track of what you're looking at while scrolling.
+## What the app can do
 
-## 🤔 A few helpful notes
-I did some research using **Google** to understand what a **CIK (Central Index Key)** is and how SEC data is structured, as I hadn't worked with it before. I also looked up the **default CIK numbers** for popular companies like Apple and Microsoft on Google to include them as quick-start options. I also relied on **VS Code's auto-suggestions** to help with some of the syntax and logic.
+- Search company data using CIK
+- Show annual trends (10-K focused) for Revenue and Assets
+- Show a raw-data explorer for all available us-gaap facts
+- Export CSV from both summary and raw-data views
 
-## 💡 A few things about my approach
+## CSV Export Behavior
 
-*   **React + Context API:** I used React's built-in **Context API** for state management instead of something heavy like Redux. For an app this size, Context is much cleaner and does the job perfectly without making the code too complex.
-*   **Tailwind for Styling:** I used Tailwind CSS because it's fast and helps keep the UI responsive. I made sure the app looks good on mobile and tablets too.
-*   **Charts with Recharts:** For the data visualization, I picked Recharts. It’s easy to use and looks professional.
-*   **Handling the SEC API:** The SEC doesn't allow direct browser requests easily. So, I added a **proxy** in the `vite.config.js` file. This basically tells the development server to act as a bridge to the SEC website so we don't hit CORS errors.
+- Summary view export: includes all available annual Revenue/Assets rows (not only currently filtered rows)
+- Raw data view export: includes all rows shown from the full us-gaap dataset
 
-## 📊 Data Mapping
-Since the SEC data is quite messy, I wrote a small logic in `src/utils/companyFacts.js` to specifically pick **Annual (10-K)** report data. This makes sure the chart shows clear year-by-year trends instead of mixed-up quarterly numbers.
+## Raw Data Explorer
 
-## ⚠️ Known Issues / Limitations
-*   **SEC Rate Limits:** If you search too many companies too fast, the SEC might temporarily block the requests (403 error). Just wait a few seconds and try again.
-*   **CIK Search:** Right now, you search using a company's **CIK number** (like 0000320193 for Apple).
-*   **Missing Data:** Not all companies use the same tags in their filings. If a company doesn't have the standard "Revenues" tag, the app will show a message that data isn't found for that specific one.
+The raw table is meant for browsing large SEC datasets without freezing the UI.
 
-I hope you find the code clean and easy to follow. Thanks for checking it out!
+- Search by tag, label, or description
+- Filter by tags, units, forms (10-K / 10-Q), and period type (FY, Q1, Q2, etc.)
+- Scrollable fixed-height table with pagination (25-200 rows)
+- Sticky header + sticky tag column for easier navigation
 
-* **Vercel Production Routing (`vercel.json`):** While `vite.config.js` successfully proxies requests in the local development environment to avoid CORS issues, Vercel does not use this config in production. This initially caused 404 API routing errors when deployed. To resolve this, I added a `vercel.json` file with specific `rewrites` rules. This acts as a production-level reverse proxy, seamlessly forwarding `/sec/api/*` requests to `https://data.sec.gov/*` and ensuring the app fetches live data correctly on the cloud.
+## Notes on the implementation
+
+- State management: React Context API (kept it lightweight instead of using Redux)
+- Styling: Tailwind CSS
+- Charts: Recharts
+- API access in local development: Vite proxy (to avoid browser CORS issues)
+
+I had not worked with SEC data before this, so I spent time understanding CIKs and how company-facts data is structured before finalizing the mapping logic.
+
+## Data Mapping Choice
+
+SEC filings can be noisy when annual and quarterly values are mixed together. The logic in `src/utils/companyFacts.js` prioritizes annual (10-K) values so the trend chart remains clear year-over-year.
+
+## Known Limitations
+
+- SEC rate limits can temporarily return 403 if too many requests are sent quickly
+- Input is currently CIK-based (no ticker/company-name lookup yet)
+- Some companies use alternate tags, so standard fields like Revenues may be missing
+
+## Deployment Note (Vercel)
+
+`vite.config.js` proxy works in local development, but Vercel does not use it in production.
+
+To fix production API routing, `vercel.json` includes rewrite rules that forward:
+
+- `/sec/api/*` -> `https://data.sec.gov/*`
+
+This solved the 404 issues on deployment.
